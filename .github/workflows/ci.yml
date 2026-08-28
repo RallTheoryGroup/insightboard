@@ -18,14 +18,14 @@ jobs:
               with:
                   dotnet-version: ${{ env.DOTNET_VERSION }}
             - name: Restore dependencies
-              run: dotnet restore
+              run: dotnet restore InsightBoard.Tests/InsightBoard.Tests.csproj
             - name: Build
-              run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
+              run: dotnet build InsightBoard.Tests/InsightBoard.Tests.csproj --configuration ${{ env.BUILD_CONFIGURATION }} --no-restore
             - name: Upload build artifact
               uses: actions/upload-artifact@v4
               with:
                   name: build-output
-                  path: ./src/**/bin/Release/**
+                  path: ./InsightBoard.*/bin/Release/**
                   retention-days: 30
     test:
         runs-on: ubuntu-latest
@@ -38,10 +38,10 @@ jobs:
               with:
                   dotnet-version: ${{ env.DOTNET_VERSION }}
             - name: Restore dependencies
-              run: dotnet restore
+              run: dotnet restore InsightBoard.Tests/InsightBoard.Tests.csproj
             - name: Run tests
               run: |
-                  dotnet test --configuration ${{ env.BUILD_CONFIGURATION }} \
+                  dotnet test InsightBoard.Tests/InsightBoard.Tests.csproj --configuration ${{ env.BUILD_CONFIGURATION }} \
                     --collect:"XPlat Code Coverage" \
                     --results-directory ./TestResults
             - name: Upload test results
@@ -64,10 +64,10 @@ jobs:
               with:
                   dotnet-version: ${{ env.DOTNET_VERSION }}
             - name: Build for deployment
-              run: dotnet build --configuration ${{ env.BUILD_CONFIGURATION }}
+              run: dotnet build InsightBoard.Core/InsightBoard.Core.csproj --configuration ${{ env.BUILD_CONFIGURATION }}
             - name: Publish application
               run: |
-                  dotnet publish --configuration ${{ env.BUILD_CONFIGURATION }} \
+                  dotnet publish InsightBoard.Core/InsightBoard.Core.csproj --configuration ${{ env.BUILD_CONFIGURATION }} \
                     --output ./publish
             - name: Deploy to environment
               run: |

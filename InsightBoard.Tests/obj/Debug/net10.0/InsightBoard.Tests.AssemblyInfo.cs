@@ -13,7 +13,7 @@ using System.Reflection;
 [assembly: System.Reflection.AssemblyCompanyAttribute("InsightBoard.Tests")]
 [assembly: System.Reflection.AssemblyConfigurationAttribute("Debug")]
 [assembly: System.Reflection.AssemblyFileVersionAttribute("1.0.0.0")]
-[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+e5c0a962f512b420b9dbb1a146e8305e96fdef89")]
+[assembly: System.Reflection.AssemblyInformationalVersionAttribute("1.0.0+2cd771b6633279254bcd7c69b7a1a53682312deb")]
 [assembly: System.Reflection.AssemblyProductAttribute("InsightBoard.Tests")]
 [assembly: System.Reflection.AssemblyTitleAttribute("InsightBoard.Tests")]
 [assembly: System.Reflection.AssemblyVersionAttribute("1.0.0.0")]

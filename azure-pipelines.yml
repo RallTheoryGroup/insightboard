@@ -6,7 +6,7 @@ pool:
   vmImage: 'ubuntu-latest'
 variables:
   buildConfiguration: 'Release'
-  dotnetVersion: '8.0.x'
+  dotnetVersion: '10.0.x'
 stages:
   - stage: Build
     displayName: 'Build Stage'
@@ -19,9 +19,9 @@ stages:
             inputs:
               packageType: 'sdk'
               version: '$(dotnetVersion)'
-          - script: dotnet restore
+          - script: dotnet restore InsightBoard.Tests/InsightBoard.Tests.csproj
             displayName: 'Restore dependencies'
-          - script: dotnet build --configuration $(buildConfiguration) --no-restore
+          - script: dotnet build InsightBoard.Tests/InsightBoard.Tests.csproj --configuration $(buildConfiguration) --no-restore
             displayName: 'Build project'
           - task: PublishBuildArtifacts@1
             displayName: 'Publish build artifacts'
@@ -41,12 +41,13 @@ stages:
             inputs:
               packageType: 'sdk'
               version: '$(dotnetVersion)'
-          - script: dotnet restore
+          - script: dotnet restore InsightBoard.Tests/InsightBoard.Tests.csproj
             displayName: 'Restore dependencies'
           - task: DotNetCoreCLI@2
             displayName: 'Run tests with coverage'
             inputs:
               command: 'test'
+              projects: 'InsightBoard.Tests/InsightBoard.Tests.csproj'
               arguments: '--configuration $(buildConfiguration) --collect:"XPlat Code Coverage"'
               publishTestResults: true
   - stage: Deploy

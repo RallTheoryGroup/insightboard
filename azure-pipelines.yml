@@ -1,0 +1,38 @@
+trigger: [main]
+pr: [main]
+pool:
+  vmImage: ubuntu-latest
+stages:
+  - stage: Build
+    jobs:
+      - job: BuildTestPack
+        steps:
+          - task: UseDotNet@2
+            inputs:
+              version: 8.0.x
+          - script: dotnet test InsightBoard.Tests -c Release
+          - script: |
+              dotnet pack InsightBoard.Core -c Release \
+                --no-build -o $(Build.ArtifactStagingDirectory) \
+                -p:PackageVersion=1.1.0-ci.$(Build.BuildId)
+              cd $(Build.ArtifactStagingDirectory)
+              sha256sum *.nupkg > package.sha256
+            displayName: Pack the tested build once
+          - publish: $(Build.ArtifactStagingDirectory)
+            artifact: candidate
+  - stage: Deliver
+    dependsOn: Build
+    condition: >-
+      and(succeeded(),
+      in(variables['Build.Reason'], 'IndividualCI', 'BatchedCI'))
+    jobs:
+      - deployment: DeliverCandidate
+        environment: ch9-insightboard-lab
+        strategy:
+          runOnce:
+            deploy:
+              steps:
+                - checkout: self
+                - script: >
+                    bash smoke-test.sh
+                    $(Pipeline.Workspace)/candidate

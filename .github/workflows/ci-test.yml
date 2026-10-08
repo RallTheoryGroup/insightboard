@@ -1,44 +1,34 @@
-name: InsightBoard CI - Tests & Coverage
+name: InsightBoard tests
 on:
   push:
     branches: [main]
   pull_request:
     branches: [main]
+permissions:
+  contents: read
 jobs:
   test:
+    name: InsightBoard tests
     runs-on: ubuntu-latest
+    env:
+      PROJECT: InsightBoard.Tests/InsightBoard.Tests.csproj
     steps:
-      - name: Checkout code
-        uses: actions/checkout@v4
-      - name: Setup .NET
-        uses: actions/setup-dotnet@v4
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
         with:
           dotnet-version: '8.0.x'
-      - name: Restore dependencies
-        run: dotnet restore
-      - name: Build
-        run: dotnet build --configuration Release --no-restore
-      - name: Run tests with coverage
+      - run: dotnet restore "$PROJECT" --locked-mode
+      - name: Test and enforce coverage
         run: |
-          dotnet test InsightBoard.Tests/InsightBoard.Tests.csproj \
-            --configuration Release \
-            --no-build \
-            --collect:"XPlat Code Coverage" \
-            --results-directory ./TestResults
-      - name: Upload coverage report
-        uses: actions/upload-artifact@v4
+          dotnet test "$PROJECT" --configuration Release --no-restore \
+            --logger "trx;LogFileName=tests.trx" \
+            --results-directory "$GITHUB_WORKSPACE/TestResults/ch8" \
+            -p:CollectCoverage=true -p:CoverletOutputFormat=cobertura \
+            -p:CoverletOutput="$GITHUB_WORKSPACE/TestResults/ch8/coverage/" \
+            -p:Threshold=80 -p:ThresholdType=line -p:ThresholdStat=total
+      - uses: actions/upload-artifact@v4
+        if: always()
         with:
-          name: coverage-report
-          path: ./TestResults/**/coverage.cobertura.xml
-          retention-days: 30
-      - name: Run tests with coverage threshold
-        run: |
-          dotnet test InsightBoard.Tests/InsightBoard.Tests.csproj \
-            --configuration Release \
-            --no-build \
-            /p:CollectCoverage=true \
-            /p:CoverletOutputFormat=cobertura \
-            /p:CoverletOutput=./TestResults/ \
-            /p:Threshold=80 \
-            /p:ThresholdType=line \
-            /p:ThresholdStat=total
+          name: test-evidence
+          path: TestResults/ch8/
+          retention-days: 7

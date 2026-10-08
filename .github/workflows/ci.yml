@@ -1,0 +1,38 @@
+name: InsightBoard delivery
+on:
+  push:
+    branches: [main]
+  pull_request:
+    branches: [main]
+jobs:
+  build:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/setup-dotnet@v4
+        with:
+          dotnet-version: 8.0.x
+      - run: dotnet test InsightBoard.Tests -c Release
+      - name: Pack the tested build once
+        run: |
+          dotnet pack InsightBoard.Core -c Release \
+            --no-build -o out \
+            -p:PackageVersion=1.1.0-ci.${{ github.run_number }}
+          cd out && sha256sum *.nupkg > package.sha256
+      - uses: actions/upload-artifact@v4
+        with:
+          name: candidate
+          path: out
+          retention-days: 7
+  deliver:
+    needs: build
+    if: github.event_name == 'push'
+    runs-on: ubuntu-latest
+    environment: insightboard-lab
+    steps:
+      - uses: actions/checkout@v4
+      - uses: actions/download-artifact@v4
+        with:
+          name: candidate
+          path: feed
+      - run: bash smoke-test.sh feed

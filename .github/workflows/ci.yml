@@ -18,7 +18,7 @@ jobs:
           dotnet pack InsightBoard.Core -c Release \
             --no-build -o out \
             -p:PackageVersion=1.1.0-ci.${{ github.run_number }}
-          cd out && sha256sum *.nupkg > package.sha256
+          cd out && sha256sum -- *.nupkg > package.sha256
       - uses: actions/upload-artifact@v4
         with:
           name: candidate

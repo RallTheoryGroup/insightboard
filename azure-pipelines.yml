@@ -16,7 +16,7 @@ stages:
                 --no-build -o $(Build.ArtifactStagingDirectory) \
                 -p:PackageVersion=1.1.0-ci.$(Build.BuildId)
               cd $(Build.ArtifactStagingDirectory)
-              sha256sum *.nupkg > package.sha256
+              sha256sum -- *.nupkg > package.sha256
             displayName: Pack the tested build once
           - publish: $(Build.ArtifactStagingDirectory)
             artifact: candidate
